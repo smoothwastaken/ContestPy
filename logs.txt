@@ -1,0 +1,16 @@
+Tweet of the image: 'http://www.randomkittengenerator.com/cats/125922.1.jpg',
+with the following content:
+Citation: “Are cats strange animals or do they so resemble us that we find them curious as we do monkeys?”
+Author: John Steinbeck
+This tweet has been succesfuly sent !
+Date & Time: Sat Apr 10 15:41:56 2021
+
+
+Tweet of the image: 'http://www.randomkittengenerator.com/cats/146864.2.jpg',
+with the following content:
+Citation: “The ideal of calm exists in a sitting cat.”
+Author: Jules Renard
+This tweet has been succesfuly sent !
+Date & Time: Sat Apr 10 15:41:59 2021
+
+
