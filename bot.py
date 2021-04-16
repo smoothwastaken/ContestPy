@@ -15,9 +15,11 @@ from tweepy import Cursor
 tweets = ''
 already_checked_tweets = ''
 
-mkeywords = ["contest", "concours", "#concours", "follow", "retweet", "like", "fav", "comment", "#contest", "remporter", "participer"]
+mkeywords = ["contest", "concours", "#concours", "follow", "retweet", "like", "fav", "comment", "#contest", "remporter", "participer", "$", "€"]
 
-vkw = ["RT", "LIKE", "FAV", "FOLLOW", "RETWEET", "COMMENT", "COMMENTE", "MENTIONNE", "AMI", "AMIS"]
+vkw = ["RT", "LIKE", "FAV", "FOLLOW", "FOLLOWS", "RETWEET", "RETWEETS", "REPOST", "REPOSTS", "COMMENT", "COMMENTS", "COMMENTE", "MENTIONNE", "AMI", "AMIS", "$", "€"]
+
+ckw = ["commente", "comment", "réponds", "reponds", "répond", "repond", "commentes"]
 
 class Bot:
     def __init__(self, api=''):
@@ -31,8 +33,10 @@ class Bot:
         )
         self.api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
-    def start(self):
-        bot.search(50)
+
+    def start(self, number_of_tweets):
+        bot.search(number_of_tweets)
+
 
     def search(self, nb):
         api = self.api
@@ -42,9 +46,12 @@ class Bot:
                 if tweet.id_str in tweets:
                     sleep(0.1)
                 else:
-                    if mkeywords[i] in tweet.text.lower():
+                    if mkeywords[i].lower() in tweet.text.lower():
                         tweets += f'{tweet.id_str} '
                         bot.verifying_real_contest(tweet)
+                    # else:
+                    #     print(f"""Sorry, there are no tweets that talk about contest...""")
+
 
     def verifying_real_contest(self, tweet):
         print(f"""[+] Tweet founded with the id:{tweet.id_str}.""")
@@ -62,6 +69,7 @@ class Bot:
                 else:
                     print("\t[-] This tweet is not a real tweet for a contest participation.\n")
 
+
     def list_conditions(self, tweet):
         api = self.api
         print("[*] Gettings the conditions for the participation.\n\n")
@@ -70,48 +78,88 @@ class Bot:
         follow = 0
         comment = 0
 
-        word = ["rt","retweet"]
+        word = ["rt", "retweet", "retweets"]
         for w in word:
-            if findWholeWord(w)(tweet.text.lower()) != 'None':
+            print(findWholeWord(w)(tweet.text.lower()))
+            result = str(findWholeWord(w)(tweet.text.lower()))
+            if result.startswith('<re') == True:
                 rt = 1
                 print(f"""\t[+] Tweet(id:{tweet.id}) has 1 RT condition !""")
 
-        word = ["fav", "like"]
+        word = ["fav", "like", "likes"]
         for w in word:
-            if findWholeWord(w)(tweet.text.lower()) != 'None':
+            print(findWholeWord(w)(tweet.text.lower()))
+            result = str(findWholeWord(w)(tweet.text.lower()))
+            if result.startswith('<re') == True:
                 fav = 1
                 print(f"""\t[+] Tweet(id:{tweet.id}) has 1 FAV condition !""")
 
-        word = ["follow", "subscribe"]
+        word = ["follow", "follows", "subscribe", "subscribes"]
         for w in word:
-            if findWholeWord(w)(tweet.text.lower()) != 'None':
+            print(findWholeWord(w)(tweet.text.lower()))
+            result = str(findWholeWord(w)(tweet.text.lower()))
+            if result.startswith('<re') == True:
                 follow = 1
                 print(f"""\t[+] Tweet(id:{tweet.id}) has 1 FOLLOW condition !""")
 
-        word = ["comment", "commentaire", "mentionne", "mention", "réponds"]
+        word = ["comment", "comments", "commentaire", "mentionne", "mentions", "réponds", "répond"]
         for w in word:
-            if findWholeWord(w)(tweet.text.lower()) != 'None':
+            print(findWholeWord(w)(tweet.text.lower()))
+            result = str(findWholeWord(w)(tweet.text.lower()))
+            if result.startswith('<re') == True:
                 comment = 1
                 print(f"""\t[+] Tweet(id:{tweet.id}) has 1 COMMENT condition !""")
 
         bot.completing_conditions(tweet, rt, fav,follow, comment)
 
+
     def completing_conditions(self, tweet, rt, fav, follow, comment):
+        def like():
+            print('like')
         api = self.api
         if rt != 0:
             try:
                 api.retweet(tweet.id)
-                print(f"""\t[+] Tweet(id:{tweet.id}) was retweeted !""")
+                print(f"""\t[+] Tweet(id:{tweet.id}) has been retweeted !""")
             except:
                 print(f"""\t[-] Tweet(id:{tweet.id}) was already retweeted...""")
                 pass
         if fav != 0:
             try:
                 api.create_favorite(tweet.id)
-                print(f"""\t[+] Tweet(id:{tweet.id}) was liked !""")
+                print(f"""\t[+] Tweet(id:{tweet.id}) has been liked !""")
             except:
                 print(f"""\t[-] Tweet(id:{tweet.id}) was already liked...""")
                 pass
 
+        if follow != 0:
+            try:
+                api.create_friendship(tweet.user.id_str)
+                print(f"""\t[+] Tweet(id:{tweet.id}) has been followed !""")
+            except:
+                print(f"""\t[-] Tweet(id:{tweet.id}) was already followed...""")
+                pass
+
+        if comment != 0:
+            global ckw
+            try:
+                textcomment = ''
+                for a in tweet.text:
+                    if a == ' ':
+
+                        textcomment = ''
+                    else:
+                        textcomment += a
+
+                    # for w in ckw():
+                    #     if textcomment.lower() == w.lower():
+                    #         pass
+
+                print(f"""\t[+] Tweet(id:{tweet.id}) has been commented !""")
+            except:
+                print(f"""\t[-] Tweet(id:{tweet.id}) was already commented...""")
+                pass
+
+
 bot = Bot()
-bot.start()
+bot.start(100)
